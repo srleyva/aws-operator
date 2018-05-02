@@ -1,0 +1,7 @@
+apiVersion: sleyva.io/v1alpha1
+kind: S3Bucket
+metadata:
+  name: my-bucket
+spec:
+  region: us-east-1
+  name: my-bucket
