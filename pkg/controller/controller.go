@@ -8,6 +8,7 @@ import (
 	leyvaclient "github.com/srleyva/aws-operator/pkg/client/clientset/versioned/typed/sleyva/v1alpha1"
 	"k8s.io/client-go/tools/cache"
 	"os"
+	"encoding/json"
 )
 
 var s3Client *S3
@@ -49,10 +50,15 @@ func (c *LeyvaController) StartWatch(namespace string, stopCh chan struct{}) err
 
 func (c *LeyvaController) onAdd(obj interface{}) {
 	s := obj.(*s3Bucket.S3Bucket).DeepCopy()
-	if err := s3Client.CreateS3Bucket(*s); err != nil {
+	policy := Policy{}
+	err := json.Unmarshal([]byte(s.Spec.Policy), &policy)
+	fmt.Printf("Policy: %s \n", policy)
+
+	err = s3Client.CreateS3Bucket(*s)
+	if err != nil {
 		fmt.Errorf("error Creating bucket: %s", err)
 	} else {
-		fmt.Printf("Created S3Bucket '%s'", s.Spec.Name)
+		fmt.Printf("Created S3Bucket '%s'\n", s.Spec.Name)
 	}
 }
 

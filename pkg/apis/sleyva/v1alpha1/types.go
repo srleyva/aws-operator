@@ -14,9 +14,18 @@ type S3Bucket struct {
 }
 
 type S3BucketSpec struct {
-	Region string `json:"region"`
 	Name   string `json:"name"`
+	Policy string `json:"policy"`
 }
+
+//type policy struct {
+//	Version   string `json:"Version"`
+//	Statement []struct {
+//		Effect   string   `json:"Effect"`
+//		Action   []string `json:"Action"`
+//		Resource string   `json:"Resource"`
+//	} `json:"Statement"`
+//}
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 

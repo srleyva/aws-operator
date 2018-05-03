@@ -13,6 +13,15 @@ type S3 struct {
 	Client s3iface.S3API
 }
 
+type Policy struct {
+	Version   string `json:"Version"`
+	Statement []struct {
+		Effect   string   `json:"Effect"`
+		Action   []string `json:"Action"`
+		Resource string   `json:"Resource"`
+	} `json:"Statement"`
+}
+
 var (
 	ErrNoSuchBucket  = errors.New("NoSuchBucket: The specified bucket does not exist")
 	ErrBucketExists  = errors.New("Bucket already exists")
@@ -49,6 +58,7 @@ func (s *S3) CreateS3Bucket(bucket s3Bucket.S3Bucket) (err error) {
 	if err != nil {
 		return err
 	}
+
 	return nil
 
 }
