@@ -1,7 +1,17 @@
 apiVersion: sleyva.io/v1alpha1
 kind: S3Bucket
 metadata:
-  name: my-awesome-bucket
+  name: my-awesome-sleyva-bucket
 spec:
-  region: us-east-2
-  name: my-bucket
+  policy: '{
+             "Version":"2012-10-17",
+             "Statement":[
+               {
+                 "Sid":"AddCannedAcl",
+                 "Effect":"Deny",
+                 "Principal": {"AWS": ["*"]},
+                 "Action":["s3:*"],
+                 "Resource":["arn:aws:s3:::my-awesome-sleyva-bucket/*"]
+               }
+             ]
+           }'

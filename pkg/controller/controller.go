@@ -8,6 +8,7 @@ import (
 	leyvaclient "github.com/srleyva/aws-operator/pkg/client/clientset/versioned/typed/sleyva/v1alpha1"
 	"k8s.io/client-go/tools/cache"
 	"os"
+	"github.com/srleyva/aws-operator/pkg/logger"
 )
 
 var s3Client *S3
@@ -21,10 +22,10 @@ type LeyvaController struct {
 
 // NewLeyvaController create controller for watching s3Bucket custom resources created
 func NewLeyvaController(context *opkit.Context, leyvaClientset leyvaclient.SleyvaV1alpha1Interface) *LeyvaController {
-	fmt.Println("Initializing Sessions with AWS")
+	logger.LogS3Infof("Initializing S3 Client for AWS")
 
 	if s3Client, err = NewS3Client(); err != nil {
-		panic(fmt.Errorf("AWS Session could not be Initialized: %s", err))
+		logger.LogS3Errorf("Error initializing client: %+v", err)
 		os.Exit(1)
 	}
 	return &LeyvaController{
@@ -33,7 +34,7 @@ func NewLeyvaController(context *opkit.Context, leyvaClientset leyvaclient.Sleyv
 	}
 }
 
-// Watch watches for instances of Sample custom resources and acts on them
+// Watch watches for instances of AWS custom resources and acts on them
 func (c *LeyvaController) StartWatch(namespace string, stopCh chan struct{}) error {
 
 	resourceHandlers := cache.ResourceEventHandlerFuncs{
@@ -49,11 +50,8 @@ func (c *LeyvaController) StartWatch(namespace string, stopCh chan struct{}) err
 
 func (c *LeyvaController) onAdd(obj interface{}) {
 	s := obj.(*s3Bucket.S3Bucket).DeepCopy()
-	if err := s3Client.CreateS3Bucket(*s); err != nil {
-		fmt.Errorf("error Creating bucket: %s", err)
-	} else {
-		fmt.Printf("Created S3Bucket '%s'", s.Spec.Name)
-	}
+	s3Client.CreateS3Bucket(*s)
+	s3Client.SetBucketPolicy(s.Name, s.Spec.Policy)
 }
 
 func (c *LeyvaController) onUpdate(oldObj, newObj interface{}) {
