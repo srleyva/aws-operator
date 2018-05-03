@@ -16,21 +16,26 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"github.com/srleyva/aws-operator/pkg/logger"
+	"github.com/Sirupsen/logrus"
 )
 
 func main() {
-	fmt.Println("Getting kubernetes context")
+	// TODO Set with cmd flags
+	logger.NewLogger(&logrus.TextFormatter{},logrus.DebugLevel, os.Stdout)
+	logrus.Info("Getting kubernetes context")
 	context, leyvaClientset, err := createContext()
 	if err != nil {
-		panic(fmt.Errorf("failed to create context. %+v\n", err))
+		logrus.Errorf("failed to create context. %+v\n", err)
+		os.Exit(1)
 	}
 
 	// Create and wait for CRD resources
-	fmt.Println("Registering the sample resource")
+	logrus.Info("Registering the S3 resource")
 	resources := []opkit.CustomResource{s3Bucket.S3BucketResource}
 	err = opkit.CreateCustomResources(*context, resources)
 	if err != nil {
-		panic(fmt.Errorf("failed to create CRDs. %+v\n", err))
+		logrus.Errorf("failed to create CRDs: %+v\n", err)
 		os.Exit(1)
 	}
 
@@ -40,7 +45,7 @@ func main() {
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
 	// start watching the sample resource
-	fmt.Println("Watching the s3Bucket resource")
+	logrus.Info("Starting Watchers")
 	controller := control.NewLeyvaController(context, leyvaClientset)
 	controller.StartWatch(v1.NamespaceAll, stopChan)
 

@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	s3Bucket "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
 	"os"
-	"fmt"
+	"github.com/srleyva/aws-operator/pkg/logger"
 )
 
 type S3 struct {
@@ -50,30 +50,36 @@ func NewS3Client() (*S3, error) {
 }
 
 func (s *S3) CreateS3Bucket(bucket s3Bucket.S3Bucket) (err error) {
-
+	logger.LogS3Infof("Creating S3 Bucket: %s", bucket.Name)
 	_, err = s.Client.CreateBucket(&s3.CreateBucketInput{
 		Bucket: aws.String(bucket.Name),
 	})
 
-	if err != nil {
-		return err
-	}
 	err = s.Client.WaitUntilBucketExists(&s3.HeadBucketInput{
 		Bucket: aws.String(bucket.Name),
 	})
 	if err != nil {
+		logger.LogS3Errorf("Error Creating Bucket: %+v", err)
 		return err
 	}
 
+	logger.LogS3Infof("Bucket %s created successfully", bucket.Name)
 	return nil
 
 }
 
 func (s *S3) SetBucketPolicy(bucketName, policy string) (err error) {
+	logger.LogS3Infof("Updating Bucket Policy: %s", bucketName)
 	_, err = s.Client.PutBucketPolicy(&s3.PutBucketPolicyInput{
 		Bucket: aws.String(bucketName),
 		Policy: aws.String(policy),
 	})
-	fmt.Errorf("err: %s \n", err)
+
+	if err != nil {
+		logger.LogS3Errorf("Error updating bucket policy: %+v", err)
+		return err
+	}
+
+	logger.LogS3Infof("Policy for %s updated successfully", bucketName)
 	return err
 }

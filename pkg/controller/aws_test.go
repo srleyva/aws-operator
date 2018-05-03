@@ -7,9 +7,13 @@ import (
 	"reflect"
 	"sync"
 	"testing"
+	"github.com/srleyva/aws-operator/pkg/logger"
+	"github.com/Sirupsen/logrus"
+	"bytes"
 )
 
 type MockBucket map[string][]byte
+var buffer bytes.Buffer
 
 type MockS3 struct {
 	s3iface.S3API
@@ -19,6 +23,7 @@ type MockS3 struct {
 }
 
 func NewMockS3() *MockS3 {
+	logger.NewLogger(&logrus.TextFormatter{},logrus.DebugLevel, &buffer)
 	return &MockS3{
 		data: map[string]MockBucket{},
 	}
@@ -62,12 +67,6 @@ func TestS3_CreateS3Bucket(t *testing.T) {
 	if err != nil {
 		t.Errorf("error returned when not expected: %s", err)
 	}
-
-	err = s3client.CreateS3Bucket(bucket)
-	if err != ErrBucketExists {
-		t.Errorf("Error not returned as expected: %s", err)
-	}
-
 }
 
 func TestSetS3BucketPolicy(t *testing.T) {
