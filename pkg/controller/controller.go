@@ -8,7 +8,6 @@ import (
 	leyvaclient "github.com/srleyva/aws-operator/pkg/client/clientset/versioned/typed/sleyva/v1alpha1"
 	"k8s.io/client-go/tools/cache"
 	"os"
-	"encoding/json"
 )
 
 var s3Client *S3
@@ -34,7 +33,7 @@ func NewLeyvaController(context *opkit.Context, leyvaClientset leyvaclient.Sleyv
 	}
 }
 
-// Watch watches for instances of Sample custom resources and acts on them
+// Watch watches for instances of AWS custom resources and acts on them
 func (c *LeyvaController) StartWatch(namespace string, stopCh chan struct{}) error {
 
 	resourceHandlers := cache.ResourceEventHandlerFuncs{
@@ -50,16 +49,11 @@ func (c *LeyvaController) StartWatch(namespace string, stopCh chan struct{}) err
 
 func (c *LeyvaController) onAdd(obj interface{}) {
 	s := obj.(*s3Bucket.S3Bucket).DeepCopy()
-	policy := Policy{}
-	err := json.Unmarshal([]byte(s.Spec.Policy), &policy)
-	fmt.Printf("Policy: %s \n", policy)
-
+	fmt.Printf("Creating Bucket: %s \n", s.Name)
 	err = s3Client.CreateS3Bucket(*s)
-	if err != nil {
-		fmt.Errorf("error Creating bucket: %s", err)
-	} else {
-		fmt.Printf("Created S3Bucket '%s'\n", s.Spec.Name)
-	}
+	fmt.Printf("err: %s \n", err)
+	fmt.Printf("Setting Policy on Bucket: %s", s.Name)
+	err = s3Client.SetBucketPolicy(s.Name, s.Spec.Policy)
 }
 
 func (c *LeyvaController) onUpdate(oldObj, newObj interface{}) {

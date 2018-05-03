@@ -14,7 +14,6 @@ type S3Bucket struct {
 }
 
 type S3BucketSpec struct {
-	Name   string `json:"name"`
 	Policy string `json:"policy"`
 }
 

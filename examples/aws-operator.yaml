@@ -67,3 +67,10 @@ spec:
       containers:
       - name: aws-operator
         image: sleyva97/aws-operator:latest
+        env:
+        - name: AWS_REGION
+          value: "us-east-1"
+        - name: AWS_ACCESS_KEY_ID
+          value: "KEY"
+        - name: AWS_SECRET_ACCESS_KEY
+          value: "ID"
