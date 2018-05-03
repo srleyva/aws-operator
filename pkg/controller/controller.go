@@ -7,18 +7,28 @@ import (
 	s3Bucket "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
 	leyvaclient "github.com/srleyva/aws-operator/pkg/client/clientset/versioned/typed/sleyva/v1alpha1"
 	"k8s.io/client-go/tools/cache"
+	"os"
 )
+
+var s3Client *S3
+var err error
 
 // SampleController represents a controller object for sample custom resources
 type LeyvaController struct {
-	context         *opkit.Context
+	context        *opkit.Context
 	leyvaClientset leyvaclient.SleyvaV1alpha1Interface
 }
 
 // NewLeyvaController create controller for watching s3Bucket custom resources created
 func NewLeyvaController(context *opkit.Context, leyvaClientset leyvaclient.SleyvaV1alpha1Interface) *LeyvaController {
+	fmt.Println("Initializing Sessions with AWS")
+
+	if s3Client, err = NewS3Client(); err != nil {
+		panic(fmt.Errorf("AWS Session could not be Initialized: %s", err))
+		os.Exit(1)
+	}
 	return &LeyvaController{
-		context:         context,
+		context:        context,
 		leyvaClientset: leyvaClientset,
 	}
 }
@@ -39,8 +49,11 @@ func (c *LeyvaController) StartWatch(namespace string, stopCh chan struct{}) err
 
 func (c *LeyvaController) onAdd(obj interface{}) {
 	s := obj.(*s3Bucket.S3Bucket).DeepCopy()
-
-	fmt.Printf("Create S3Bucket '%s' in region %s with bucketname %s \n", s.Name, s.Spec.Region, s.Spec.Name)
+	if err := s3Client.CreateS3Bucket(*s); err != nil {
+		fmt.Errorf("error Creating bucket: %s", err)
+	} else {
+		fmt.Printf("Created S3Bucket '%s'", s.Spec.Name)
+	}
 }
 
 func (c *LeyvaController) onUpdate(oldObj, newObj interface{}) {

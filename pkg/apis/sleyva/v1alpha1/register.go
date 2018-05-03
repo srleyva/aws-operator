@@ -18,7 +18,7 @@ var (
 )
 
 // schemeGroupVersion is group version used to register these objects
-var SchemeGroupVersion = schema.GroupVersion{Group: "myproject.io", Version: "v1alpha1"}
+var SchemeGroupVersion = schema.GroupVersion{Group: "sleyva.io", Version: "v1alpha1"}
 
 var S3BucketResource = opkit.CustomResource{
 	Name:    "s3bucket",

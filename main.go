@@ -11,7 +11,7 @@ import (
 	opkit "github.com/rook/operator-kit"
 	s3Bucket "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
 	leyvaClient "github.com/srleyva/aws-operator/pkg/client/clientset/versioned/typed/sleyva/v1alpha1"
-	"github.com/srleyva/aws-operator/pkg/controller"
+	control "github.com/srleyva/aws-operator/pkg/controller"
 	"k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
@@ -31,6 +31,7 @@ func main() {
 	err = opkit.CreateCustomResources(*context, resources)
 	if err != nil {
 		panic(fmt.Errorf("failed to create CRDs. %+v\n", err))
+		os.Exit(1)
 	}
 
 	// create signals to stop watching the resources
@@ -40,7 +41,7 @@ func main() {
 
 	// start watching the sample resource
 	fmt.Println("Watching the s3Bucket resource")
-	controller := controller.NewLeyvaController(context, leyvaClientset)
+	controller := control.NewLeyvaController(context, leyvaClientset)
 	controller.StartWatch(v1.NamespaceAll, stopChan)
 
 	for {
