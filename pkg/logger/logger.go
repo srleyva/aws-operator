@@ -11,30 +11,30 @@ func NewLogger(format log.Formatter, level log.Level, writer io.Writer) {
 	log.SetLevel(level)
 }
 
-func LogS3Infof(message string, a ...interface{}) {
+func LogAWSInfof(resource, message string, a ...interface{}) {
 	log.WithFields(log.Fields{
 		"Service":  "AWS",
-		"Resource": "S3",
+		"Resource": resource,
 	}).Infof(message, a)
 }
 
-func LogS3Debugf(message string, a ...interface{}) {
+func LogAWSDebugf(resource, message string, a ...interface{}) {
 	log.WithFields(log.Fields{
 		"Service":  "AWS",
-		"Resource": "S3",
+		"Resource": resource,
 	}).Debugf(message, a)
 }
 
-func LogS3Warningf(message string, a ...interface{}) {
+func LogAWSWarningf(resource, message string, a ...interface{}) {
 	log.WithFields(log.Fields{
 		"Service":  "AWS",
-		"Resource": "S3",
+		"Resource": resource,
 	}).Warnf(message, a)
 }
 
-func LogS3Errorf(message string, a ...interface{}) {
+func LogAWSErrorf(resource, message string, a ...interface{}) {
 	log.WithFields(log.Fields{
 		"Service":  "AWS",
-		"Resource": "S3",
+		"Resource": resource,
 	}).Errorf(message, a)
 }

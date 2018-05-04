@@ -7,37 +7,37 @@ import (
 	"testing"
 )
 
-func TestLogS3Infof(t *testing.T) {
+func TestLogAWSInfof(t *testing.T) {
 	buffer := bytes.Buffer{}
 	NewLogger(&logrus.TextFormatter{}, logrus.InfoLevel, &buffer)
-	LogS3Infof("Hello %s", "world")
+	LogAWSInfof("S3", "Hello %s", "world")
 	if !strings.Contains(buffer.String(), "level=info msg=\"Hello [world]\"") {
 		t.Errorf("Wrong response given: %s", buffer.String())
 	}
 }
 
-func TestLogS3Warningf(t *testing.T) {
+func TestLogAWSWarningf(t *testing.T) {
 	buffer := bytes.Buffer{}
 	NewLogger(&logrus.TextFormatter{}, logrus.InfoLevel, &buffer)
-	LogS3Warningf("Hello %s", "world")
+	LogAWSWarningf("S3", "Hello %s", "world")
 	if !strings.Contains(buffer.String(), "level=warning msg=\"Hello [world]\"") {
 		t.Errorf("Wrong response given: %s", buffer.String())
 	}
 }
 
-func TestLogS3Debugf(t *testing.T) {
+func TestLogAWSDebugf(t *testing.T) {
 	buffer := bytes.Buffer{}
 	NewLogger(&logrus.TextFormatter{}, logrus.DebugLevel, &buffer)
-	LogS3Debugf("Hello %s", "world")
+	LogAWSDebugf("S3", "Hello %s", "world")
 	if !strings.Contains(buffer.String(), "level=debug msg=\"Hello [world]\"") {
 		t.Errorf("Wrong response given: %s", buffer.String())
 	}
 }
 
-func TestLogS3Fatalf(t *testing.T) {
+func TestLogAWSFatalf(t *testing.T) {
 	buffer := bytes.Buffer{}
 	NewLogger(&logrus.TextFormatter{}, logrus.InfoLevel, &buffer)
-	LogS3Errorf("Hello %s", "world")
+	LogAWSErrorf("S3", "Hello %s", "world")
 	if !strings.Contains(buffer.String(), "level=error msg=\"Hello [world]\"") {
 		t.Errorf("Wrong response given: %s", buffer.String())
 	}

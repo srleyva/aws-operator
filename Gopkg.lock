@@ -22,6 +22,7 @@
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
   packages = [
+    ".",
     "aws",
     "aws/awserr",
     "aws/awsutil",
@@ -47,6 +48,8 @@
     "private/protocol/rest",
     "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
+    "service/cloudformation",
+    "service/cloudformation/cloudformationiface",
     "service/s3",
     "service/s3/s3iface",
     "service/sts"
@@ -455,6 +458,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d5c8c713ab3448f58a0da21950b5e56bbe4c135c730fc36d290b8b5a143956a9"
+  inputs-digest = "afa787e007f5119f13422a1ee9bf2ba7860897b1cb24771a7aaec218389037a3"
   solver-name = "gps-cdcl"
   solver-version = 1
