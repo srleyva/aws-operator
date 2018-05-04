@@ -53,6 +53,8 @@ func (f *genericInformer) Lister() cache.GenericLister {
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
 	// Group=sleyva, Version=v1alpha1
+	case v1alpha1.SchemeGroupVersion.WithResource("cloudformations"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Sleyva().V1alpha1().Cloudformations().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("s3buckets"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Sleyva().V1alpha1().S3Buckets().Informer()}, nil
 

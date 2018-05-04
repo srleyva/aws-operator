@@ -24,6 +24,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
+	// Cloudformations returns a CloudformationInformer.
+	Cloudformations() CloudformationInformer
 	// S3Buckets returns a S3BucketInformer.
 	S3Buckets() S3BucketInformer
 }
@@ -37,6 +39,11 @@ type version struct {
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) Interface {
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
+}
+
+// Cloudformations returns a CloudformationInformer.
+func (v *version) Cloudformations() CloudformationInformer {
+	return &cloudformationInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // S3Buckets returns a S3BucketInformer.

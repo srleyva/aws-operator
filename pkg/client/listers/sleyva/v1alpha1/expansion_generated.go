@@ -18,6 +18,14 @@ limitations under the License.
 
 package v1alpha1
 
+// CloudformationListerExpansion allows custom methods to be added to
+// CloudformationLister.
+type CloudformationListerExpansion interface{}
+
+// CloudformationNamespaceListerExpansion allows custom methods to be added to
+// CloudformationNamespaceLister.
+type CloudformationNamespaceListerExpansion interface{}
+
 // S3BucketListerExpansion allows custom methods to be added to
 // S3BucketLister.
 type S3BucketListerExpansion interface{}

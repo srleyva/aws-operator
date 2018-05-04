@@ -10,6 +10,9 @@ import (
 	"reflect"
 	"sync"
 	"testing"
+	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
+	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 type MockBucket map[string][]byte
@@ -29,6 +32,7 @@ func NewMockS3() *MockS3 {
 		data: map[string]MockBucket{},
 	}
 }
+
 
 func (self *MockS3) CreateBucket(input *s3.CreateBucketInput) (*s3.CreateBucketOutput, error) {
 	self.Lock()
@@ -121,5 +125,25 @@ func TestDeleteS3Bucket(t *testing.T) {
 	if err != nil {
 		t.Errorf("error returned when not expected: %s", err)
 	}
-
 }
+
+
+type MockCFN struct {
+	cloudformationiface.CloudFormationAPI
+}
+
+func NewMockCFN() *MockCFN {
+	logger.NewLogger(&logrus.TextFormatter{}, logrus.DebugLevel, &buffer)
+	return &MockCFN{}
+}
+
+func CreateStack(input *cloudformation.CreateStackInput) (*cloudformation.CreateStackOutput, error) {
+	resp := cloudformation.CreateStackOutput{
+		StackId: aws.String("1234"),
+	}
+	return &resp, nil
+}
+
+//func TestGetStackStatus(t *testing.T) {
+//
+//}

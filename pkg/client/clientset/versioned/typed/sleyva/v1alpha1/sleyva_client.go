@@ -27,12 +27,17 @@ import (
 
 type SleyvaV1alpha1Interface interface {
 	RESTClient() rest.Interface
+	CloudformationsGetter
 	S3BucketsGetter
 }
 
 // SleyvaV1alpha1Client is used to interact with features provided by the sleyva group.
 type SleyvaV1alpha1Client struct {
 	restClient rest.Interface
+}
+
+func (c *SleyvaV1alpha1Client) Cloudformations(namespace string) CloudformationInterface {
+	return newCloudformations(c, namespace)
 }
 
 func (c *SleyvaV1alpha1Client) S3Buckets(namespace string) S3BucketInterface {

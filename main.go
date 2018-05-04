@@ -39,8 +39,10 @@ func main() {
 
 	// Create and wait for CRD resources
 	logrus.Info("Registering the S3 resource")
-	resources := []opkit.CustomResource{s3Bucket.S3BucketResource}
-	err = opkit.CreateCustomResources(*context, resources)
+	s3Resource := []opkit.CustomResource{s3Bucket.S3BucketResource}
+	cfnResource := []opkit.CustomResource{s3Bucket.CloudformationResource}
+	err = opkit.CreateCustomResources(*context, s3Resource)
+	err = opkit.CreateCustomResources(*context, cfnResource)
 	if err != nil {
 		logrus.Fatalf("failed to create CRDs: %+v\n", err)
 		os.Exit(1)
