@@ -20,10 +20,16 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+var (
+	VERSION = "No Version Provided"
+	COMMIT  = "No Commit Provided"
+	BRANCH  = "debug"
+)
+
 func main() {
 	// TODO Set with cmd flags
 	logger.NewLogger(&logrus.TextFormatter{}, logrus.DebugLevel, os.Stdout)
-	logrus.Info("Welcome to the AWS-Operator")
+	logrus.Infof("AWS-Operator Version: %s \nCommit: %s \nBranch: %s", VERSION, COMMIT, BRANCH)
 	logrus.Info("Getting kubernetes context")
 	context, leyvaClientset, err := createContext()
 	if err != nil {
@@ -45,7 +51,7 @@ func main() {
 	stopChan := make(chan struct{})
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
-	// start watching the sample resource
+	// start watching the AWS resources
 	logrus.Info("Starting Watchers")
 	controller := control.NewLeyvaController(context, leyvaClientset)
 	controller.StartWatch(v1.NamespaceAll, stopChan)

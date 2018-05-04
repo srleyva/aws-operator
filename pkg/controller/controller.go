@@ -14,7 +14,7 @@ import (
 var s3Client *S3
 var err error
 
-// SampleController represents a controller object for sample custom resources
+// LeyvaController represents a controller object for sample custom resources
 type LeyvaController struct {
 	context        *opkit.Context
 	leyvaClientset leyvaclient.SleyvaV1alpha1Interface
