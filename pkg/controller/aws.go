@@ -132,16 +132,16 @@ func (s *CFN) CreateCfnStack(cfn *awsResources.Cloudformation) (err error) {
 }
 
 func (s *CFN) DeleteCfnStack(cfn *awsResources.Cloudformation) (err error) {
-	logger.LogAWSInfof("S3", "Cloudformation", "Create New Stack: %s", cfn.Name)
+	logger.LogAWSInfof("S3", "Cloudformation", "Deleting Stack: %s", cfn.Name)
 	_, err = s.Client.DeleteStack(&cloudformation.DeleteStackInput{
-		StackName:    aws.String(cfn.Name),
+		StackName: aws.String(cfn.Name),
 	})
 
 	if err != nil {
-		logger.LogAWSErrorf("S3", "Error Creating Stack: %+v", err)
+		logger.LogAWSErrorf("S3", "Error Deleting Stack: %+v", err)
 		return err
 	}
-	// TODO Return status
-	logger.LogAWSInfof("S3", "CFN Stack %s create initiated successfully. Please check status.", cfn.Name)
+	// TODO Watch status and return to spec status
+	logger.LogAWSInfof("S3", "CFN Stack %s deleted successfully. Please check status.", cfn.Name)
 	return nil
 }

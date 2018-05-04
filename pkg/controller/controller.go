@@ -82,7 +82,6 @@ func (c *LeyvaController) onDeleteS3(obj interface{}) {
 
 func (c *LeyvaController) onAddCfn(obj interface{}) {
 	s := obj.(*awsResources.Cloudformation).DeepCopy()
-	logger.LogAWSInfof("S3", "Deploying CFN Stack: %s", s.Name)
 	logger.LogAWSDebugf("Template: %s", s.Spec.Template)
 	cfnClient.CreateCfnStack(s)
 
@@ -95,5 +94,5 @@ func (c *LeyvaController) onUpdateCfn(oldObj, newObj interface{}) {
 
 func (c *LeyvaController) onDeleteCfn(obj interface{}) {
 	s := obj.(*awsResources.Cloudformation).DeepCopy()
-	logger.LogAWSInfof("S3", "Deleting CFN Stack: %s", s.Name)
+	cfnClient.DeleteCfnStack(s)
 }
