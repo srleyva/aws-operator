@@ -2,13 +2,13 @@
 package controller
 
 import (
-	"fmt"
 	opkit "github.com/rook/operator-kit"
 	s3Bucket "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
 	leyvaclient "github.com/srleyva/aws-operator/pkg/client/clientset/versioned/typed/sleyva/v1alpha1"
 	"k8s.io/client-go/tools/cache"
 	"os"
 	"github.com/srleyva/aws-operator/pkg/logger"
+	"github.com/Sirupsen/logrus"
 )
 
 var s3Client *S3
@@ -22,7 +22,7 @@ type LeyvaController struct {
 
 // NewLeyvaController create controller for watching s3Bucket custom resources created
 func NewLeyvaController(context *opkit.Context, leyvaClientset leyvaclient.SleyvaV1alpha1Interface) *LeyvaController {
-	logger.LogS3Infof("Initializing S3 Client for AWS")
+	logrus.Info("Initializing S3 Client for AWS")
 
 	if s3Client, err = NewS3Client(); err != nil {
 		logger.LogS3Errorf("Error initializing client: %+v", err)
@@ -55,14 +55,12 @@ func (c *LeyvaController) onAdd(obj interface{}) {
 }
 
 func (c *LeyvaController) onUpdate(oldObj, newObj interface{}) {
-	oldSample := oldObj.(*s3Bucket.S3Bucket).DeepCopy()
 	newSample := newObj.(*s3Bucket.S3Bucket).DeepCopy()
-
-	fmt.Printf("Updated S3Bucket '%s' to '%s\n", newSample.Name, oldSample.Name)
+	logger.LogS3Infof("Updating Bucket: %s", newSample.Name)
+	s3Client.SetBucketPolicy(newSample.Name, newSample.Spec.Policy)
 }
 
 func (c *LeyvaController) onDelete(obj interface{}) {
 	s := obj.(*s3Bucket.S3Bucket).DeepCopy()
-
-	fmt.Printf("Deleted S3 Bucket '%s'\n", s.Name)
+	s3Client.DeleteS3Bucket(s.Name)
 }

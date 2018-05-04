@@ -22,11 +22,13 @@ import (
 
 func main() {
 	// TODO Set with cmd flags
+	version := "v0.0.1"
 	logger.NewLogger(&logrus.TextFormatter{},logrus.DebugLevel, os.Stdout)
+	logrus.Info("Welcome to the AWS-Operator %s", version)
 	logrus.Info("Getting kubernetes context")
 	context, leyvaClientset, err := createContext()
 	if err != nil {
-		logrus.Errorf("failed to create context. %+v\n", err)
+		logrus.Fatalf("failed to create context. %+v\n", err)
 		os.Exit(1)
 	}
 
@@ -35,7 +37,7 @@ func main() {
 	resources := []opkit.CustomResource{s3Bucket.S3BucketResource}
 	err = opkit.CreateCustomResources(*context, resources)
 	if err != nil {
-		logrus.Errorf("failed to create CRDs: %+v\n", err)
+		logrus.Fatalf("failed to create CRDs: %+v\n", err)
 		os.Exit(1)
 	}
 

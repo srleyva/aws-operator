@@ -48,6 +48,11 @@ func (self *MockS3) PutBucketPolicy(input *s3.PutBucketPolicyInput) (*s3.PutBuck
 	return &resp, nil
 }
 
+func (self *MockS3) DeleteBucket(input *s3.DeleteBucketInput) (*s3.DeleteBucketOutput, error) {
+	resp := &s3.DeleteBucketOutput{}
+	return resp, nil
+}
+
 func TestNewS3Client(t *testing.T) {
 	config, err := NewS3Client()
 	if err != nil {
@@ -103,6 +108,15 @@ func TestSetS3BucketPolicy(t *testing.T) {
 
 	s3client := S3{Client: NewMockS3()}
 	err := s3client.SetBucketPolicy("test-bucket", policy)
+	if err != nil {
+		t.Errorf("error returned when not expected: %s", err)
+	}
+
+}
+
+func TestDeleteS3Bucket(t *testing.T) {
+	s3client := S3{Client: NewMockS3()}
+	err := s3client.DeleteS3Bucket("test-bucket")
 	if err != nil {
 		t.Errorf("error returned when not expected: %s", err)
 	}

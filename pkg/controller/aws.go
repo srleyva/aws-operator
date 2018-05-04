@@ -83,3 +83,18 @@ func (s *S3) SetBucketPolicy(bucketName, policy string) (err error) {
 	logger.LogS3Infof("Policy for %s updated successfully", bucketName)
 	return err
 }
+
+func (s *S3) DeleteS3Bucket(bucketName string) (err error) {
+	logger.LogS3Infof("Deleting bucket: %s", bucketName)
+	_, err = s.Client.DeleteBucket(&s3.DeleteBucketInput{
+		Bucket: aws.String(bucketName),
+	})
+
+	if err != nil {
+		logger.LogS3Errorf("Error Deleting Bucket %+v", err)
+		return err
+	}
+
+	logger.LogS3Infof("Bucket %s deleted successfully", bucketName)
+	return nil
+}
