@@ -7,7 +7,7 @@ spec:
              "Version":"2012-10-17",
              "Statement":[
                {
-                 "Sid":"AddCannedAcl",
+                 "Sid":"TestAPolicy",
                  "Effect":"Deny",
                  "Principal": {"AWS": ["*"]},
                  "Action":["s3:*"],

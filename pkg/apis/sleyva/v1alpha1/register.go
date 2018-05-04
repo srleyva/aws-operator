@@ -27,6 +27,7 @@ var S3BucketResource = opkit.CustomResource{
 	Version: "v1alpha1",
 	Scope:   apiextensionsv1beta1.NamespaceScoped,
 	Kind:    reflect.TypeOf(S3Bucket{}).Name(),
+	ShortNames: []string{"s3", "buckets"},
 }
 
 func init() {
