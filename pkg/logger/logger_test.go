@@ -1,10 +1,10 @@
 package logger
 
 import (
-	"testing"
 	"bytes"
 	"github.com/Sirupsen/logrus"
 	"strings"
+	"testing"
 )
 
 func TestLogS3Infof(t *testing.T) {

@@ -1,18 +1,19 @@
 package controller
 
 import (
+	"bytes"
+	"github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	s3Bucket "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
+	"github.com/srleyva/aws-operator/pkg/logger"
 	"reflect"
 	"sync"
 	"testing"
-	"github.com/srleyva/aws-operator/pkg/logger"
-	"github.com/Sirupsen/logrus"
-	"bytes"
 )
 
 type MockBucket map[string][]byte
+
 var buffer bytes.Buffer
 
 type MockS3 struct {
@@ -23,7 +24,7 @@ type MockS3 struct {
 }
 
 func NewMockS3() *MockS3 {
-	logger.NewLogger(&logrus.TextFormatter{},logrus.DebugLevel, &buffer)
+	logger.NewLogger(&logrus.TextFormatter{}, logrus.DebugLevel, &buffer)
 	return &MockS3{
 		data: map[string]MockBucket{},
 	}

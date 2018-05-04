@@ -21,12 +21,12 @@ var (
 var SchemeGroupVersion = schema.GroupVersion{Group: "sleyva.io", Version: "v1alpha1"}
 
 var S3BucketResource = opkit.CustomResource{
-	Name:    "s3bucket",
-	Plural:  "s3buckets",
-	Group:   "sleyva.io",
-	Version: "v1alpha1",
-	Scope:   apiextensionsv1beta1.NamespaceScoped,
-	Kind:    reflect.TypeOf(S3Bucket{}).Name(),
+	Name:       "s3bucket",
+	Plural:     "s3buckets",
+	Group:      "sleyva.io",
+	Version:    "v1alpha1",
+	Scope:      apiextensionsv1beta1.NamespaceScoped,
+	Kind:       reflect.TypeOf(S3Bucket{}).Name(),
 	ShortNames: []string{"s3", "buckets"},
 }
 

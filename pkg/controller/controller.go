@@ -2,13 +2,13 @@
 package controller
 
 import (
+	"github.com/Sirupsen/logrus"
 	opkit "github.com/rook/operator-kit"
 	s3Bucket "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
 	leyvaclient "github.com/srleyva/aws-operator/pkg/client/clientset/versioned/typed/sleyva/v1alpha1"
+	"github.com/srleyva/aws-operator/pkg/logger"
 	"k8s.io/client-go/tools/cache"
 	"os"
-	"github.com/srleyva/aws-operator/pkg/logger"
-	"github.com/Sirupsen/logrus"
 )
 
 var s3Client *S3

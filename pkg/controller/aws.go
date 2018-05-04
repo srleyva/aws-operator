@@ -7,8 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	s3Bucket "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
-	"os"
 	"github.com/srleyva/aws-operator/pkg/logger"
+	"os"
 )
 
 type S3 struct {

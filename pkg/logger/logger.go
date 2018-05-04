@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-func NewLogger(format log.Formatter,level log.Level, writer io.Writer) {
+func NewLogger(format log.Formatter, level log.Level, writer io.Writer) {
 	log.SetFormatter(format)
 	log.SetOutput(writer)
 	log.SetLevel(level)

@@ -8,23 +8,22 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Sirupsen/logrus"
 	opkit "github.com/rook/operator-kit"
 	s3Bucket "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
 	leyvaClient "github.com/srleyva/aws-operator/pkg/client/clientset/versioned/typed/sleyva/v1alpha1"
 	control "github.com/srleyva/aws-operator/pkg/controller"
+	"github.com/srleyva/aws-operator/pkg/logger"
 	"k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"github.com/srleyva/aws-operator/pkg/logger"
-	"github.com/Sirupsen/logrus"
 )
 
 func main() {
 	// TODO Set with cmd flags
-	version := "v0.0.1"
-	logger.NewLogger(&logrus.TextFormatter{},logrus.DebugLevel, os.Stdout)
-	logrus.Info("Welcome to the AWS-Operator %s", version)
+	logger.NewLogger(&logrus.TextFormatter{}, logrus.DebugLevel, os.Stdout)
+	logrus.Info("Welcome to the AWS-Operator")
 	logrus.Info("Getting kubernetes context")
 	context, leyvaClientset, err := createContext()
 	if err != nil {
