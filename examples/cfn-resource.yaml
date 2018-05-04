@@ -1,0 +1,12 @@
+apiVersion: sleyva.io/v1alpha1
+kind: Cloudformation
+metadata:
+  name: my-awesome-cfn-stack
+spec:
+  template: '{
+           "Resources" : {
+               "dontkickthebucket" : {
+                  "Type" : "AWS::S3::Bucket"
+                  }
+               }
+           }'

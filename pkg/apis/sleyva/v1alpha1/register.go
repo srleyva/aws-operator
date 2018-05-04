@@ -30,6 +30,16 @@ var S3BucketResource = opkit.CustomResource{
 	ShortNames: []string{"s3", "buckets"},
 }
 
+var CloudformationResource = opkit.CustomResource{
+	Name:       "cloudformation",
+	Plural:     "cloudformation",
+	Group:      "sleyva.io",
+	Version:    "v1alpha1",
+	Scope:      apiextensionsv1beta1.NamespaceScoped,
+	Kind:       reflect.TypeOf(Cloudformation{}).Name(),
+	ShortNames: []string{"cfn", "stacks"},
+}
+
 func init() {
 	// We only register manually written functions here. The registration of the
 	// generated functions takes place in the generated files. The separation
@@ -48,6 +58,10 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&S3Bucket{},
 		&S3BucketList{},
 	)
+	scheme.AddKnownTypes(SchemeGroupVersion,
+		&Cloudformation{},
+		&CloudformationList{})
+
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

@@ -37,30 +37,54 @@ func NewLeyvaController(context *opkit.Context, leyvaClientset leyvaclient.Sleyv
 // Watch watches for instances of AWS custom resources and acts on them
 func (c *LeyvaController) StartWatch(namespace string, stopCh chan struct{}) error {
 
-	resourceHandlers := cache.ResourceEventHandlerFuncs{
-		AddFunc:    c.onAdd,
-		UpdateFunc: c.onUpdate,
-		DeleteFunc: c.onDelete,
+	s3resourceHandlers := cache.ResourceEventHandlerFuncs{
+		AddFunc:    c.onAddS3,
+		UpdateFunc: c.onUpdateS3,
+		DeleteFunc: c.onDeleteS3,
 	}
+	cfnresourceHandlers := cache.ResourceEventHandlerFuncs{
+		AddFunc:    c.onAddCfn,
+		UpdateFunc: c.onUpdateCfn,
+		DeleteFunc: c.onDeleteCfn,
+	}
+
 	restClient := c.leyvaClientset.RESTClient()
-	watcher := opkit.NewWatcher(s3Bucket.S3BucketResource, namespace, resourceHandlers, restClient)
-	go watcher.Watch(&s3Bucket.S3Bucket{}, stopCh)
+	s3Watcher := opkit.NewWatcher(s3Bucket.S3BucketResource, namespace, s3resourceHandlers, restClient)
+	cfnWatcher := opkit.NewWatcher(s3Bucket.CloudformationResource, namespace, cfnresourceHandlers, restClient)
+	go s3Watcher.Watch(&s3Bucket.S3Bucket{}, stopCh)
+	go cfnWatcher.Watch(&s3Bucket.Cloudformation{}, stopCh)
 	return nil
 }
 
-func (c *LeyvaController) onAdd(obj interface{}) {
+func (c *LeyvaController) onAddS3(obj interface{}) {
 	s := obj.(*s3Bucket.S3Bucket).DeepCopy()
 	s3Client.CreateS3Bucket(*s)
 	s3Client.SetBucketPolicy(s.Name, s.Spec.Policy)
 }
 
-func (c *LeyvaController) onUpdate(oldObj, newObj interface{}) {
+func (c *LeyvaController) onUpdateS3(oldObj, newObj interface{}) {
 	newSample := newObj.(*s3Bucket.S3Bucket).DeepCopy()
 	logger.LogS3Infof("Updating Bucket: %s", newSample.Name)
 	s3Client.SetBucketPolicy(newSample.Name, newSample.Spec.Policy)
 }
 
-func (c *LeyvaController) onDelete(obj interface{}) {
+func (c *LeyvaController) onDeleteS3(obj interface{}) {
 	s := obj.(*s3Bucket.S3Bucket).DeepCopy()
 	s3Client.DeleteS3Bucket(s.Name)
+}
+
+func (c *LeyvaController) onAddCfn(obj interface{}) {
+	s := obj.(*s3Bucket.Cloudformation).DeepCopy()
+	logger.LogS3Infof("Deploying CFN Stack: %s", s.Name)
+	logger.LogS3Debugf("Template: %s", s.Spec.Template)
+}
+
+func (c *LeyvaController) onUpdateCfn(oldObj, newObj interface{}) {
+	s := newObj.(*s3Bucket.Cloudformation).DeepCopy()
+	logger.LogS3Infof("Updating CFN Stack: %s", s.Name)
+}
+
+func (c *LeyvaController) onDeleteCfn(obj interface{}) {
+	s := obj.(*s3Bucket.Cloudformation).DeepCopy()
+	logger.LogS3Infof("Deleting CFN Stack: %s", s.Name)
 }

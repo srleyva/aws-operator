@@ -28,6 +28,10 @@ type FakeSleyvaV1alpha1 struct {
 	*testing.Fake
 }
 
+func (c *FakeSleyvaV1alpha1) Cloudformations(namespace string) v1alpha1.CloudformationInterface {
+	return &FakeCloudformations{c, namespace}
+}
+
 func (c *FakeSleyvaV1alpha1) S3Buckets(namespace string) v1alpha1.S3BucketInterface {
 	return &FakeS3Buckets{c, namespace}
 }
