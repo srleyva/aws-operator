@@ -44,6 +44,5 @@ type CloudformationList struct {
 }
 
 type CloudformationSpec struct {
-	Template string               `json:"template"`
+	Template string `json:"template"`
 }
-

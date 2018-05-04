@@ -10,7 +10,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	opkit "github.com/rook/operator-kit"
-	s3Bucket "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
+	awsResources "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
 	leyvaClient "github.com/srleyva/aws-operator/pkg/client/clientset/versioned/typed/sleyva/v1alpha1"
 	control "github.com/srleyva/aws-operator/pkg/controller"
 	"github.com/srleyva/aws-operator/pkg/logger"
@@ -39,8 +39,8 @@ func main() {
 
 	// Create and wait for CRD resources
 	logrus.Info("Registering the S3 resource")
-	s3Resource := []opkit.CustomResource{s3Bucket.S3BucketResource}
-	cfnResource := []opkit.CustomResource{s3Bucket.CloudformationResource}
+	s3Resource := []opkit.CustomResource{awsResources.S3BucketResource}
+	cfnResource := []opkit.CustomResource{awsResources.CloudformationResource}
 	err = opkit.CreateCustomResources(*context, s3Resource)
 	err = opkit.CreateCustomResources(*context, cfnResource)
 	if err != nil {

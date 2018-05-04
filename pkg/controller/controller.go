@@ -4,7 +4,7 @@ package controller
 import (
 	"github.com/Sirupsen/logrus"
 	opkit "github.com/rook/operator-kit"
-	s3Bucket "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
+	awsResources "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
 	leyvaclient "github.com/srleyva/aws-operator/pkg/client/clientset/versioned/typed/sleyva/v1alpha1"
 	"github.com/srleyva/aws-operator/pkg/logger"
 	"k8s.io/client-go/tools/cache"
@@ -12,6 +12,7 @@ import (
 )
 
 var s3Client *S3
+var cfnClient *CFN
 var err error
 
 // LeyvaController represents a controller object for sample custom resources
@@ -20,14 +21,20 @@ type LeyvaController struct {
 	leyvaClientset leyvaclient.SleyvaV1alpha1Interface
 }
 
-// NewLeyvaController create controller for watching s3Bucket custom resources created
+// NewLeyvaController create controller for watching awsResources custom resources created
 func NewLeyvaController(context *opkit.Context, leyvaClientset leyvaclient.SleyvaV1alpha1Interface) *LeyvaController {
-	logrus.Info("Initializing S3 Client for AWS")
+	logrus.Info("Initializing Client for AWS")
 
 	if s3Client, err = NewS3Client(); err != nil {
-		logger.LogS3Errorf("Error initializing client: %+v", err)
+		logger.LogAWSErrorf("Client", "Error initializing client: %+v", err)
 		os.Exit(1)
 	}
+
+	if cfnClient, err = NewCFNClient(); err != nil {
+		logger.LogAWSErrorf("Client", "Error initializing client: %+v", err)
+		os.Exit(1)
+	}
+
 	return &LeyvaController{
 		context:        context,
 		leyvaClientset: leyvaClientset,
@@ -49,42 +56,44 @@ func (c *LeyvaController) StartWatch(namespace string, stopCh chan struct{}) err
 	}
 
 	restClient := c.leyvaClientset.RESTClient()
-	s3Watcher := opkit.NewWatcher(s3Bucket.S3BucketResource, namespace, s3resourceHandlers, restClient)
-	cfnWatcher := opkit.NewWatcher(s3Bucket.CloudformationResource, namespace, cfnresourceHandlers, restClient)
-	go s3Watcher.Watch(&s3Bucket.S3Bucket{}, stopCh)
-	go cfnWatcher.Watch(&s3Bucket.Cloudformation{}, stopCh)
+	s3Watcher := opkit.NewWatcher(awsResources.S3BucketResource, namespace, s3resourceHandlers, restClient)
+	cfnWatcher := opkit.NewWatcher(awsResources.CloudformationResource, namespace, cfnresourceHandlers, restClient)
+	go s3Watcher.Watch(&awsResources.S3Bucket{}, stopCh)
+	go cfnWatcher.Watch(&awsResources.Cloudformation{}, stopCh)
 	return nil
 }
 
 func (c *LeyvaController) onAddS3(obj interface{}) {
-	s := obj.(*s3Bucket.S3Bucket).DeepCopy()
+	s := obj.(*awsResources.S3Bucket).DeepCopy()
 	s3Client.CreateS3Bucket(*s)
 	s3Client.SetBucketPolicy(s.Name, s.Spec.Policy)
 }
 
 func (c *LeyvaController) onUpdateS3(oldObj, newObj interface{}) {
-	newSample := newObj.(*s3Bucket.S3Bucket).DeepCopy()
-	logger.LogS3Infof("Updating Bucket: %s", newSample.Name)
+	newSample := newObj.(*awsResources.S3Bucket).DeepCopy()
+	logger.LogAWSInfof("S3", "Updating Bucket: %s", newSample.Name)
 	s3Client.SetBucketPolicy(newSample.Name, newSample.Spec.Policy)
 }
 
 func (c *LeyvaController) onDeleteS3(obj interface{}) {
-	s := obj.(*s3Bucket.S3Bucket).DeepCopy()
+	s := obj.(*awsResources.S3Bucket).DeepCopy()
 	s3Client.DeleteS3Bucket(s.Name)
 }
 
 func (c *LeyvaController) onAddCfn(obj interface{}) {
-	s := obj.(*s3Bucket.Cloudformation).DeepCopy()
-	logger.LogS3Infof("Deploying CFN Stack: %s", s.Name)
-	logger.LogS3Debugf("Template: %s", s.Spec.Template)
+	s := obj.(*awsResources.Cloudformation).DeepCopy()
+	logger.LogAWSInfof("S3", "Deploying CFN Stack: %s", s.Name)
+	logger.LogAWSDebugf("Template: %s", s.Spec.Template)
+	cfnClient.CreateCfnStack(s)
+
 }
 
 func (c *LeyvaController) onUpdateCfn(oldObj, newObj interface{}) {
-	s := newObj.(*s3Bucket.Cloudformation).DeepCopy()
-	logger.LogS3Infof("Updating CFN Stack: %s", s.Name)
+	s := newObj.(*awsResources.Cloudformation).DeepCopy()
+	logger.LogAWSInfof("S3", "Updating CFN Stack: %s", s.Name)
 }
 
 func (c *LeyvaController) onDeleteCfn(obj interface{}) {
-	s := obj.(*s3Bucket.Cloudformation).DeepCopy()
-	logger.LogS3Infof("Deleting CFN Stack: %s", s.Name)
+	s := obj.(*awsResources.Cloudformation).DeepCopy()
+	logger.LogAWSInfof("S3", "Deleting CFN Stack: %s", s.Name)
 }

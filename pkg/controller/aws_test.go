@@ -3,16 +3,16 @@ package controller
 import (
 	"bytes"
 	"github.com/Sirupsen/logrus"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
-	s3Bucket "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
+	awsResources "github.com/srleyva/aws-operator/pkg/apis/sleyva/v1alpha1"
 	"github.com/srleyva/aws-operator/pkg/logger"
 	"reflect"
 	"sync"
 	"testing"
-	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/aws/aws-sdk-go/aws"
 )
 
 type MockBucket map[string][]byte
@@ -26,13 +26,16 @@ type MockS3 struct {
 	data map[string]MockBucket
 }
 
+type MockCFN struct {
+	cloudformationiface.CloudFormationAPI
+}
+
 func NewMockS3() *MockS3 {
 	logger.NewLogger(&logrus.TextFormatter{}, logrus.DebugLevel, &buffer)
 	return &MockS3{
 		data: map[string]MockBucket{},
 	}
 }
-
 
 func (self *MockS3) CreateBucket(input *s3.CreateBucketInput) (*s3.CreateBucketOutput, error) {
 	self.Lock()
@@ -70,7 +73,7 @@ func TestNewS3Client(t *testing.T) {
 
 func TestS3_CreateS3Bucket(t *testing.T) {
 	// TODO Seperate cases
-	bucket := s3Bucket.S3Bucket{}
+	bucket := awsResources.S3Bucket{}
 	bucket.Name = "my-test-bucket"
 	s3client := S3{Client: NewMockS3()}
 	err := s3client.CreateS3Bucket(bucket)
@@ -127,23 +130,46 @@ func TestDeleteS3Bucket(t *testing.T) {
 	}
 }
 
-
-type MockCFN struct {
-	cloudformationiface.CloudFormationAPI
-}
-
 func NewMockCFN() *MockCFN {
 	logger.NewLogger(&logrus.TextFormatter{}, logrus.DebugLevel, &buffer)
 	return &MockCFN{}
 }
 
-func CreateStack(input *cloudformation.CreateStackInput) (*cloudformation.CreateStackOutput, error) {
+func (self *MockCFN) CreateStack(input *cloudformation.CreateStackInput) (*cloudformation.CreateStackOutput, error) {
 	resp := cloudformation.CreateStackOutput{
 		StackId: aws.String("1234"),
 	}
 	return &resp, nil
 }
 
-//func TestGetStackStatus(t *testing.T) {
-//
-//}
+func (self *MockCFN) DeleteStack(input *cloudformation.DeleteStackInput) (*cloudformation.DeleteStackOutput, error) {
+	resp := cloudformation.DeleteStackOutput{}
+	return &resp, nil
+}
+
+func TestCreateCfnStack(t *testing.T) {
+	stack := `{"Resources" : { "dontkickthebucket" : { "Type" : "AWS::S3::Bucket" }}}`
+
+	fakeCfn := awsResources.Cloudformation{}
+	fakeCfn.Name = "test-stack"
+	fakeCfn.Spec.Template = stack
+
+	cfnClient := CFN{Client: NewMockCFN()}
+	err := cfnClient.CreateCfnStack(&fakeCfn)
+	if err != nil {
+		t.Errorf("error returned when not expected: %s", err)
+	}
+
+}
+
+func TestDeleteCfnStack(t *testing.T) {
+	fakeCfn := awsResources.Cloudformation{}
+	fakeCfn.Name = "test-stack"
+
+	cfnClient := CFN{Client: NewMockCFN()}
+	err := cfnClient.DeleteCfnStack(&fakeCfn)
+	if err != nil {
+		t.Errorf("error returned when not expected: %s", err)
+	}
+
+}
